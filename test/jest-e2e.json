@@ -1,9 +1,23 @@
 {
-  "moduleFileExtensions": ["js", "json", "ts"],
+  "moduleFileExtensions": [
+    "js",
+    "json",
+    "ts"
+  ],
   "rootDir": ".",
   "testEnvironment": "node",
   "testRegex": ".e2e-spec.ts$",
   "transform": {
     "^.+\\.(t|j)s$": "ts-jest"
+  },
+  "moduleNameMapper": {
+    "@app/email/(.*)": "<rootDir>/../libs/email/src/$1",
+    "@app/email": "<rootDir>/../libs/email/src",
+    "@app/validation/(.*)": "<rootDir>/../libs/validation/src/$1",
+    "@app/validation": "<rootDir>/../libs/validation/src",
+    "@app/generator/(.*)": "<rootDir>/../libs/generator/src/$1",
+    "@app/generator": "<rootDir>/../libs/generator/src",
+    "@app/controller/(.*)": "<rootDir>/../libs/controller/src/$1",
+    "@app/controller": "<rootDir>/../libs/controller/src"
   }
 }

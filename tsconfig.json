@@ -16,6 +16,26 @@
     "noImplicitAny": false,
     "strictBindCallApply": false,
     "forceConsistentCasingInFileNames": false,
-    "noFallthroughCasesInSwitch": false
+    "noFallthroughCasesInSwitch": false,
+    "paths": {
+      "@app/validation": [
+        "libs/validation/src"
+      ],
+      "@app/validation/*": [
+        "libs/validation/src/*"
+      ],
+      "@app/generator": [
+        "libs/generator/src"
+      ],
+      "@app/generator/*": [
+        "libs/generator/src/*"
+      ],
+      "@app/controller": [
+        "libs/controller/src"
+      ],
+      "@app/controller/*": [
+        "libs/controller/src/*"
+      ]
+    }
   }
 }

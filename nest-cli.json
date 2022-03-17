@@ -1,4 +1,38 @@
 {
   "collection": "@nestjs/schematics",
-  "sourceRoot": "src"
+  "sourceRoot": "./src",
+  "projects": {
+    "validation": {
+      "type": "library",
+      "root": "libs/validation",
+      "entryFile": "index",
+      "sourceRoot": "libs/validation/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/validation/tsconfig.lib.json"
+      }
+    },
+    "generator": {
+      "type": "library",
+      "root": "libs/generator",
+      "entryFile": "index",
+      "sourceRoot": "libs/generator/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/generator/tsconfig.lib.json"
+      }
+    },
+    "controller": {
+      "type": "library",
+      "root": "libs/controller",
+      "entryFile": "index",
+      "sourceRoot": "libs/controller/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/controller/tsconfig.lib.json"
+      }
+    }
+  },
+  "monorepo": true,
+  "root": ".",
+  "compilerOptions": {
+    "webpack": true
+  }
 }

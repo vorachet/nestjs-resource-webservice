@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
+        <link rel="stylesheet" href="css/normalize.css">
+        <link rel="stylesheet" href="css/skeleton.css">
+    </head>
+
+    <body>
+
+        <div class="container">
+
+            <h1>Admin</h1>
+
+            <div class="form">
+                <label>Access Token</label>
+                <textarea id="access_token" placeholder="Click login button to get token" style="width:100%"></textarea>
+            </div>
+
+            <div class="form">
+                <label>Admin Secret</label>
+                <input type="text" id="adminSecret" placeholder="enter admin secret" style="width:100%" />
+                <p></p>
+                <button class="button-primary" onclick="adminLogin()">login</button>
+                <button class="button-primary" onclick="verifyAccessToken()">verify access token</button>
+
+                <hr>
+                <h4>Create New Org</h4>
+                <div class="form">
+                    <label>Org</label>
+                    <input type="text" id="createNewOrg_org" />
+                    <button class="button-primary" onclick="createNewOrg()">Create</button>
+                    <button class="button-primary" onclick="listOrgs()">List</button>
+                </div>
+
+                <hr>
+                <h4>Add Org Attribute</h4>
+                <div class="form">
+                    <label>Org</label>
+                    <input type="text" id="addOrgAttr_attrOrg" />
+                    <label>Attribute Name</label>
+                    <input type="text" id="addOrgAttr_attrName" />
+                    <label>Attribute DataType</label>
+                    <select id="addOrgAttr_attrType">
+                        <option value="string">string</option>
+                        <option value="number">number</option>
+                        <option value="boolean">boolean</option>
+                        <option value="timestamp">timestamp</option>
+                    </select>
+                    <label>Attribute Value</label>
+                    <input type="text" id="addOrgAttr_attrValue" />
+                    <p></p>
+                    <button class="button-primary" onclick="addOrgAttr()">Add</button>
+                </div>
+
+                <hr>
+                <h4>Create New Org User Admin</h4>
+                <div class="form">
+                    <label>Org</label>
+                    <input type="text" id="newUserAdmin_org" />
+                    <label>Username</label>
+                    <input type="text" id="newUserAdmin_username" />
+                    <label>Password</label>
+                    <input type="password" id="newUserAdmin_username" />
+                    <p></p>
+                    <button class="button-primary" onclick="createNewOrgUserAdmin()">Create</button>
+                </div>
+
+                <hr>
+                <h4>List Org Users</h4>
+                <div class="form">
+                    <label>Org</label>
+                    <input type="text" id="listOrgUsers_org" />
+                    <p></p>
+                    <button class="button-primary" onclick="listOrgUsers()">List</button>
+                </div>
+            </div>
+
+        </div>
+
+        <script>
+            function adminLogin(secret) {
+                fetch('/auth/adminLogin', {
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    method: "POST",
+                    body: JSON.stringify({
+                        secret: document.getElementById("adminSecret").value,
+                    })
+                }).then((response) => {
+                    return response.json();
+                }).then((response) => {
+                    console.log(response);
+                    if (response.statusCode == 200) {
+                        document.getElementById("access_token").value = response.data;
+                    } else {
+                        alert('Unable to login');
+                    }
+                }).catch((error) => {
+                    console.error(error);
+                    alert('Unable to login');
+                });
+            }
+
+            function verifyAccessToken() {
+                fetch('/auth/verifyAccessToken', {
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    method: "POST",
+                    body: JSON.stringify({
+                        accessToken: document.getElementById("access_token").value || 'empty',
+                    })
+                }).then((response) => {
+                    return response.json();
+                }).then((response) => {
+                    alert(JSON.stringify(response, null, 2));
+                    console.log(response);
+                }).catch((error) => {
+                    alert(error);
+                    console.log(error);
+                });
+            }
+
+            function createNewOrg() {
+                fetch('/admin/createNewOrg', {
+                    headers: {
+                        'Authorization': `Bearer ${document.getElementById("access_token").value}`,
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    method: "POST",
+                    body: JSON.stringify({
+                        org: document.getElementById("createNewOrg_org").value,
+                    })
+                }).then((response) => {
+                    return response.json();
+                }).then((data) => {
+                    alert(JSON.stringify(data, null, 2));
+                    console.log(data);
+                }).catch((error) => {
+                    alert(error);
+                    console.log(error);
+                });
+            }
+            function addOrgAttr() {
+                fetch('/admin/addOrgAttr', {
+                    headers: {
+                        'Authorization': `Bearer ${document.getElementById("access_token").value}`,
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    method: "POST",
+                    body: JSON.stringify({
+                        attrOrg: document.getElementById("addOrgAttr_attrOrg").value,
+                        attrName: document.getElementById("addOrgAttr_attrName").value,
+                        attrType: document.getElementById("addOrgAttr_attrType").value,
+                        attrValue: document.getElementById("addOrgAttr_attrValue").value,
+                    })
+                }).then((response) => {
+                    return response.json();
+                }).then((response) => {
+                    alert(JSON.stringify(response, null, 2));
+                    console.log(response);
+                }).catch((error) => {
+                    alert(error);
+                    console.log(error);
+                });
+            }
+
+            function createNewOrgUserAdmin() {
+                fetch('/admin/createNewOrgUserAdmin', {
+                    headers: {
+                        'Authorization': `Bearer ${document.getElementById("access_token").value}`,
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    method: "POST",
+                    body: JSON.stringify({
+                        org: document.getElementById("newUserAdmin_org").value,
+                        username: document.getElementById("newUserAdmin_org").value,
+                        password: document.getElementById("newUserAdmin_org").value,
+                    })
+                }).then((response) => {
+                    return response.json();
+                }).then((data) => {
+                    alert(JSON.stringify(data, null, 2));
+                    console.log(data);
+                }).catch((error) => {
+                    alert(error);
+                    console.log(error);
+                });
+            }
+
+            function listOrgs() {
+                fetch('/admin/listOrgs', {
+                    headers: {
+                        'Authorization': `Bearer ${document.getElementById("access_token").value}`,
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    method: "GET",
+                }).then((response) => {
+                    return response.json();
+                }).then((response) => {
+                    alert(JSON.stringify(response, null, 2));
+                    console.log(response);
+                }).catch((error) => {
+                    alert(error);
+                    console.log(error);
+                });
+            }
+
+            function listOrgUsers() {
+                fetch('/admin/listOrgUsers', {
+                    headers: {
+                        'Authorization': `Bearer ${document.getElementById("access_token").value}`,
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    method: "POST",
+                    body: JSON.stringify({
+                        org: document.getElementById("listOrgUsers_org").value,
+                    })
+                }).then((response) => {
+                    return response.json();
+                }).then((response) => {
+                    alert(JSON.stringify(response, null, 2));
+                    console.log(response);
+                }).catch((error) => {
+                    alert(error);
+                    console.log(error);
+                });
+            }
+
+        </script>
+    </body>
+
+</html>

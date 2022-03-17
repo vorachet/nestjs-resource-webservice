@@ -1,0 +1,68 @@
+@token = 456
+
+
+################
+# @name loginFail
+POST http://localhost:3000/auth/login   HTTP/1.1
+accept: application/json
+content-type: application/json
+authorization: Bearer {{token}}
+
+{
+    "username": "unknown",
+    "password": "unknown"
+}
+
+################
+# @name login
+POST http://localhost:3000/auth/login   HTTP/1.1
+accept: application/json
+content-type: application/json
+authorization: Bearer {{token}}
+
+{
+    "username": "admin",
+    "password": "password"
+}
+
+################
+# @name createUser
+POST http://localhost:3000/createResource   HTTP/1.1
+accept: application/json
+content-type: application/json
+authorization: Bearer {{login.response.body.$.access_token}}
+
+{
+    "collection": "users",
+    "entity": {
+        "name": "aot"
+    }
+}
+
+################
+# @name findAllUsers
+POST http://localhost:3000/findAllResources   HTTP/1.1
+accept: application/json
+content-type: application/json
+authorization: Bearer {{login.response.body.$.access_token}}
+
+{
+    "collection": "users",
+    "filter": {
+        "name": "aot"
+    }
+}
+
+
+################
+# @name findOneUser
+POST http://localhost:3000/findOneResource   HTTP/1.1
+accept: application/json
+content-type: application/json
+authorization: Bearer {{login.response.body.$.access_token}}
+
+{
+    "collection": "users",
+    "id": "6229aac2887ff18a5540a111"
+}
+

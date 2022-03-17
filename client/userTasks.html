@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
+        <link rel="stylesheet" href="css/normalize.css">
+        <link rel="stylesheet" href="css/skeleton.css">
+    </head>
+
+    <body>
+
+
+        <div class="container">
+
+            <div class="form">
+                <h3>Access Token</h3>
+                <textarea id="access_token" placeholder="Click login button to get token" class="u-full-width"></textarea>
+            </div>
+
+            <div class="row">
+                <div class="six columns">
+                    <h3>User Login</h3>
+                    <div>
+                        <label>Org</label>
+                        <input type="text" id="user_org" value="abc" />
+                        <label>Username</label>
+                        <input type="text" id="user_username" value="user" />
+                        <label>Password</label>
+                        <input type="password" id="user_password" value="pass" />
+                        <p></p>
+                        <button onclick="userLogin()">Login</button>
+                        <button onclick="verifyAccessToken()">Verify Token</button>
+                    </div>
+
+                    <h3>Add User Attribute</h3>
+                    <div class="form">
+                        <label>Attribute Name</label>
+                        <input type="text" id="addUserAttr_attrName" />
+                        <label>Attribute DataType</label>
+                        <select id="addUserAttr_attrType">
+                            <option value="string">string</option>
+                            <option value="number">number</option>
+                            <option value="boolean">boolean</option>
+                            <option value="timestamp">timestamp</option>
+                        </select>
+                        <label>Attribute Value</label>
+                        <input type="text" id="addUserAttr_attrValue" />
+                        <p></p>
+                        <button onclick="addUserAttr()">Add</button>
+                    </div>
+
+                </div>
+                <div class="six columns">
+                    <h3>User Admin Login</h3>
+                    <div>
+                        <label>Org</label>
+                        <input type="text" id="useradmin_org" value="abc" />
+                        <label>Username</label>
+                        <input type="text" id="useradmin_username" value="admin" />
+                        <label>Password</label>
+                        <input type="password" id="useradmin_password" value="pass" />
+                        <p></p>
+                        <button onclick="userAdminLogin()">Login</button>
+                        <button onclick="verifyAccessToken()">Verify Token</button>
+                    </div>
+
+                    <h3>User Admin Services</h3>
+                    <button onclick="getOrg()">get Org</button>
+                    <button onclick="listOrgUsers()">list Org Users</button>
+
+                    <h3>Create New User</h3>
+                    <div>
+                        <label>Username</label>
+                        <input type="text" id="new_username" />
+                        <label>Password</label>
+                        <input type="password" id="new_password" />
+                        <p></p>
+                        <button onclick="createNewOrgUser()">Create</button>
+                    </div>
+
+                    <h3>Add Org Attribute</h3>
+                    <div class="form">
+                        <label>Attribute Name</label>
+                        <input type="text" id="addOrgAttr_attrName" />
+                        <label>Attribute DataType</label>
+                        <select id="addOrgAttr_attrType">
+                            <option value="string">string</option>
+                            <option value="number">number</option>
+                            <option value="boolean">boolean</option>
+                            <option value="timestamp">timestamp</option>
+                        </select>
+                        <label>Attribute Value</label>
+                        <input type="text" id="addOrgAttr_attrValue" />
+                        <p></p>
+                        <button onclick="addOrgAttr()">Add</button>
+                    </div>
+
+                    <h3>Add User Attribute</h3>
+                    <div class="form">
+                        <label>Username</label>
+                        <input type="text" id="addUserAttrByUserAdmin_username" />
+                        <label>Attribute Name</label>
+                        <input type="text" id="addUserAttrByUserAdmin_attrName" />
+                        <label>Attribute DataType</label>
+                        <select id="addUserAttrByUserAdmin_attrType">
+                            <option value="string">string</option>
+                            <option value="number">number</option>
+                            <option value="boolean">boolean</option>
+                            <option value="timestamp">timestamp</option>
+                        </select>
+                        <label>Attribute Value</label>
+                        <input type="text" id="addUserAttrByUserAdmin_attrValue" />
+                        <p></p>
+                        <button onclick="addUserAttrByUserAdmin()">Add</button>
+                    </div>
+
+                    <h3>Get User Profile</h3>
+                    <label>Username</label>
+                    <input type="text" id="getUserProfileByUserAdmin_username" />
+                    <button onclick="getUserProfileByUserAdmin()">get User Profile</button>
+
+                </div>
+            </div>
+
+            <h1>Common Services</h1>
+
+            <h3>User Profile</h3>
+            <button onclick="getUserProfile()">get User Profile</button>
+
+            <h3>Upload Image</h3>
+
+            <form id="uploadFileForm" action="/media/uploadFile" method="post" encType="multipart/form-data">
+                <input type="file" name="file" id="file" capture>
+                <input type="hidden" name="uploadFileToken" id="uploadFileToken" value="invalidtoken">
+                <input type="hidden" name="category" id="category" value="profile">
+                <button type="button" onclick="uploadFile()">Upload</button>
+            </form>
+
+            <h3>Delete File</h3>
+            <label>File id</label>
+            <input type="text" id="fileId" />
+            <button onclick="deleteFile()">Delete</button>
+
+
+            <h3>Email</h3>
+            <label>Email address</label>
+            <input type="text" id="email" />
+            <button onclick="sendMail()">Send</button>
+
+
+        </div>
+
+
+        <script>
+            function deleteFile() {
+                const payload = {
+                    fileId: document.getElementById("fileId").value,
+                    deleteFileToken: localStorage.getItem('token'),
+                };
+                fetch(`/media/deleteFile`, {
+                        headers: {
+                            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                            Accept: 'application/json',
+                            'Content-Type': 'application/json',
+                        },
+                        method: 'POST',
+                        body: JSON.stringify(payload),
+                    })
+                    .then((response) => {
+                        return response.json();
+                    })
+                    .then((data) => {
+                        console.log(data);
+                        alert(JSON.stringify(data, null, 2));
+                    })
+                    .catch((error) => {
+                        console.error(error);
+                        alert(error);
+                    });
+            }
+
+            function uploadFile() {
+                document.getElementById("uploadFileToken").value = localStorage.getItem('token');
+                document.getElementById("uploadFileForm").submit();
+            }
+
+            function sendMail() {
+                const payload = {
+                    to: document.getElementById("email").value,
+                };
+                fetch(`/registration/verifyUserEmail`, {
+                        headers: {
+                            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                            Accept: 'application/json',
+                            'Content-Type': 'application/json',
+                        },
+                        method: 'POST',
+                        body: JSON.stringify(payload),
+                    })
+                    .then((response) => {
+                        return response.json();
+                    })
+                    .then((data) => {
+                        console.log(data);
+                        alert(JSON.stringify(data, null, 2));
+                    })
+                    .catch((error) => {
+                        console.error(error);
+                        alert(error);
+                    });
+            }
+
+            function addOrgAttr() {
+                fetch('/useradmin/addOrgAttr', {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    method: "POST",
+                    body: JSON.stringify({
+                        attrName: document.getElementById("addOrgAttr_attrName").value,
+                        attrType: document.getElementById("addOrgAttr_attrType").value,
+                        attrValue: document.getElementById("addOrgAttr_attrValue").value,
+                    })
+                }).then((response) => {
+                    return response.json();
+                }).then((response) => {
+                    alert(JSON.stringify(response, null, 2));
+                    console.log(response);
+                }).catch((error) => {
+                    alert(error);
+                    console.log(error);
+                });
+            }
+
+            function getUserProfile() {
+                fetch('/user/getUserProfile', {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    method: "GET",
+                }).then((response) => {
+                    return response.json();
+                }).then((response) => {
+                    alert(JSON.stringify(response, null, 2));
+                    console.log(response);
+                }).catch((error) => {
+                    alert(error);
+                    console.log(error);
+                });
+            }
+
+            function getUserProfileByUserAdmin() {
+                fetch('/useradmin/getUserProfile/' + document.getElementById("getUserProfileByUserAdmin_username").value, {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    method: "GET",
+                }).then((response) => {
+                    return response.json();
+                }).then((response) => {
+                    alert(JSON.stringify(response, null, 2));
+                    console.log(response);
+                }).catch((error) => {
+                    alert(error);
+                    console.log(error);
+                });
+            }
+
+            function addUserAttr() {
+                fetch('/user/addUserAttr', {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    method: "POST",
+                    body: JSON.stringify({
+                        attrName: document.getElementById("addUserAttr_attrName").value,
+                        attrType: document.getElementById("addUserAttr_attrType").value,
+                        attrValue: document.getElementById("addUserAttr_attrValue").value,
+                    })
+                }).then((response) => {
+                    return response.json();
+                }).then((response) => {
+                    alert(JSON.stringify(response, null, 2));
+                    console.log(response);
+                }).catch((error) => {
+                    alert(error);
+                    console.log(error);
+                });
+            }
+
+            
+            function addUserAttrByUserAdmin() {
+                fetch('/useradmin/addUserAttr', {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    method: "POST",
+                    body: JSON.stringify({
+                        username: document.getElementById("addUserAttrByUserAdmin_username").value,
+                        attrName: document.getElementById("addUserAttrByUserAdmin_attrName").value,
+                        attrType: document.getElementById("addUserAttrByUserAdmin_attrType").value,
+                        attrValue: document.getElementById("addUserAttrByUserAdmin_attrValue").value,
+                    })
+                }).then((response) => {
+                    return response.json();
+                }).then((response) => {
+                    alert(JSON.stringify(response, null, 2));
+                    console.log(response);
+                }).catch((error) => {
+                    alert(error);
+                    console.log(error);
+                });
+            }
+
+            function createNewOrgUser() {
+                fetch('/useradmin/createNewOrgUser', {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    method: "POST",
+                    body: JSON.stringify({
+                        username: document.getElementById("new_username").value,
+                        password: document.getElementById("new_password").value
+                    })
+                }).then((response) => {
+                    return response.json();
+                }).then((response) => {
+                    alert(JSON.stringify(response, null, 2));
+                    console.log(response);
+                }).catch((error) => {
+                    alert(error);
+                    console.log(error);
+                });
+            }
+
+            function getOrg() {
+                fetch('/useradmin/getOrg', {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    method: "GET",
+                }).then((response) => {
+                    return response.json();
+                }).then((response) => {
+                    alert(JSON.stringify(response, null, 2));
+                    console.log(response);
+                }).catch((error) => {
+                    alert(error);
+                    console.log(error);
+                });
+            }
+
+            function listOrgUsers() {
+                fetch('/useradmin/listOrgUsers', {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    method: "GET",
+                }).then((response) => {
+                    return response.json();
+                }).then((response) => {
+                    alert(JSON.stringify(response, null, 2));
+                    console.log(response);
+                }).catch((error) => {
+                    alert(error);
+                    console.log(error);
+                });
+            }
+
+            function userLogin(secret) {
+                fetch('/auth/userLogin', {
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    method: "POST",
+                    body: JSON.stringify({
+                        role: 'user',
+                        username: document.getElementById("user_username").value,
+                        password: document.getElementById("user_password").value,
+                        org: document.getElementById("user_org").value,
+                    })
+                }).then((response) => {
+                    return response.json();
+                }).then((response) => {
+                    console.log(response);
+                    if (response.statusCode == 200) {
+                        document.getElementById("access_token").value = response.data;
+                        localStorage.setItem('token', response.data);
+                    } else {
+                        alert('Unable to login');
+                    }
+                }).catch((error) => {
+                    console.error(error);
+                    alert('Unable to login');
+                });
+            }
+
+            function userAdminLogin(secret) {
+                fetch('/auth/userAdminLogin', {
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    method: "POST",
+                    body: JSON.stringify({
+                        role: 'user',
+                        username: document.getElementById("useradmin_username").value,
+                        password: document.getElementById("useradmin_password").value,
+                        org: document.getElementById("useradmin_org").value,
+                    })
+                }).then((response) => {
+                    return response.json();
+                }).then((response) => {
+                    console.log(response);
+                    if (response.statusCode == 200) {
+                        document.getElementById("access_token").value = response.data;
+                        localStorage.setItem('token', response.data);
+                    } else {
+                        alert('Unable to login');
+                    }
+                }).catch((error) => {
+                    console.error(error);
+                    alert('Unable to login');
+                });
+            }
+
+            function verifyAccessToken() {
+                fetch('/auth/verifyAccessToken', {
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    method: "POST",
+                    body: JSON.stringify({
+                        accessToken: document.getElementById("access_token").value || 'empty',
+                    })
+                }).then((response) => {
+                    return response.json();
+                }).then((response) => {
+                    alert(JSON.stringify(response, null, 2));
+                    console.log(response);
+                }).catch((error) => {
+                    alert(error);
+                    console.log(error);
+                });
+            }
+
+        </script>
+    </body>
+
+</html>

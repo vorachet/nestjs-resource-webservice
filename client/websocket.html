@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="utf-8">
+        <style>
+            body {
+                padding: 50px;
+            }
+
+            .form {
+                padding: 5px;
+                margin-bottom: 20px;
+            }
+
+            .form textarea {
+                display: block;
+            }
+
+            .form label {
+                margin-top: 5px;
+                display: block;
+            }
+
+        </style>
+    </head>
+
+    <body>
+
+        <div class="form">
+            <fieldset>
+                <legend>Token</legend>
+                <label>JWT</label>
+                <textarea id="access_token" style="width:100%"></textarea>
+            </fieldset>
+        </div>
+
+        <div class="form">
+            <fieldset>
+                <legend>System Admin Auth</legend>
+                <label>System Admin Secret</label>
+                <input type="text" id="systemAdminSecret" placeholder="System Admin Secret" />
+                <button onclick="systemAdminLogin('admin','password')">login</button>
+
+                <p></p>
+                <div class="form">
+                    <fieldset>
+                        <legend>User creation form</legend>
+                        <label>Role</label>
+                        <input type="text" id="new_role" />
+                        <label>Username</label>
+                        <input type="text" id="new_username" />
+                        <label>Password</label>
+                        <input type="password" id="new_password" />
+                        <label>Org</label>
+                        <input type="text" id="new_org" />
+                        <p></p>
+                        <button onclick="createNewUser()">Create new user</button>
+                    </fieldset>
+                </div>
+                <p></p>
+                <div class="form">
+                    <fieldset>
+                        <legend>User databases</legend>
+                        <button onclick="listAllUsers">List all users</button>
+                    </fieldset>
+                </div>
+
+            </fieldset>
+
+        </div>
+
+        <div class="form">
+            <fieldset>
+                <legend>User Auth</legend>
+                <label>Role</label>
+                <input type="text" id="role" />
+                <label>Username</label>
+                <input type="text" id="username" />
+                <label>Password</label>
+                <input type="password" id="password" />
+                <label>Org</label>
+                <input type="text" id="org" />
+                <p></p>
+                <button onclick="login()">Login and Generate JWT</button>
+            </fieldset>
+        </div>
+
+        
+
+        <h1>Microservice Resource Creation</h1>
+        <button onclick="callMicroservice('createResource', {collection: 'customers', entity: {name: new Date()}})">customers</button>
+        <button onclick="callMicroservice('findAllResources', {collection: 'customers', filter: {}})">get customers</button>
+        <button onclick="callMicroservice('createResource', {collection: 'projects', entity: {name: new Date()}})">project</button>
+        <button onclick="callMicroservice('findAllResources', {collection: 'projects', filter: {}})">get projects</button>
+
+        <h1>WebSocket</h1>
+        <button onclick="callWebSocket('createResource', {collection: 'customers', entity: {name: new Date()}})">customers</button>
+        <button onclick="callWebSocket('findAllResources', {collection: 'customers', filter: {}})">get customers</button>
+        <button onclick="callWebSocket('createResource', {collection: 'project', entity: {name: new Date()}})">project</button>
+        <button onclick="callWebSocket('findAllResources', {collection: 'project', filter: {}})">get projects</button>
+
+        <script src="/socket.io/socket.io.js"></script>
+        <script>
+            const socket = io(`ws://127.0.0.1:3000`);
+            const WS_RESOURCE_NAME = 'ResourceCustomerWebsocket';
+            const REST_RESOURCE_URL = '/resource-customer-restapi';
+            const REST_HEADERS = {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            };
+            let isConnected = false;
+
+            socket.on("connect", () => {
+                isConnected = true;
+                console.log('connected');
+
+            })
+
+            socket.on("disconnect", () => {
+                isConnected = false;
+                console.log('disconnected');
+            });
+
+            function createNewUser() {
+                const newRole = document.getElementById("new_role").value;
+                const newUsername = document.getElementById("new_username").value;
+                const newPassword = document.getElementById("new_password").value;
+                const newOrg = document.getElementById("new_org").value;
+                callMicroservice('create', payload)
+            }
+
+            function callMicroservice(operation, payload) {
+                payload.token = document.getElementById("token").value;
+                fetch(`/${operation}`, {
+                    headers: {
+                        'Authorization': `Bearer ${document.getElementById("token").value}`,
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    method: "POST",
+                    body: JSON.stringify(payload)
+                }).then((response) => {
+                    return response.json();
+                }).then((data) => {
+                    console.log(data);
+                }).catch((error) => {
+                    console.log(error);
+                });
+            }
+
+            function callWebSocket(operation, payload) {
+                socket.emit(`${operation}`, payload, data => {
+                    console.log(data);
+                });
+            }
+
+            function systemAdminLogin(secret) {
+                fetch('/auth/systemAdminLogin', {
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    method: "POST",
+                    body: JSON.stringify({
+                        secret: document.getElementById("systemAdminSecret").value,
+                    })
+                }).then((response) => {
+                    return response.json();
+                }).then((data) => {
+                    console.log(data);
+                    if (data.access_token) {
+                        document.getElementById("access_token").value = data.access_token;
+                    }
+                }).catch((error) => {
+                    console.log(error);
+                });
+            }
+
+            function login(payload) {
+                fetch('/auth/login', {
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    method: "POST",
+                    body: JSON.stringify({
+                        role: document.getElementById("role").value,
+                        org: document.getElementById("org").value,
+                        username: document.getElementById("username").value,
+                        password: document.getElementById("password").value
+                    })
+                }).then((response) => {
+                    return response.json();
+                }).then((data) => {
+                    console.log(data);
+                    if (data.access_token) {
+                        document.getElementById("access_token").value = data.access_token;
+                    }
+                }).catch((error) => {
+                    console.log(error);
+                });
+            }
+
+            function verify_access_token() {
+                fetch('/auth/verify_access_token', {
+                    headers: REST_HEADERS,
+                    method: "POST",
+                    body: JSON.stringify({
+                        access_token: document.getElementById("access_token").value || 'empty',
+                    })
+                }).then((response) => {
+                    return response.json();
+                }).then((data) => {
+                    console.log(data);
+                }).catch((error) => {
+                    console.log(error);
+                });
+            }
+
+        </script>
+    </body>
+
+</html>
